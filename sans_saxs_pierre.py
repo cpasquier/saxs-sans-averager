@@ -67,22 +67,22 @@ class MainWindow(QMainWindow):
         # Bouton remove 
         remv_button = QPushButton("Remove", self)
         remv_button.clicked.connect(self.remove_clicked)
-        remv_button.setGeometry(165, 30, 93, 28) 
+        remv_button.setGeometry(155, 30, 93, 28) 
 
         # Bouton update graph
         updt_button = QPushButton("Update graph", self)
         updt_button.clicked.connect(self.update_clicked)
-        updt_button.setGeometry(290, 30, 93, 28)
+        updt_button.setGeometry(270, 30, 113, 28)
 
         # Bouton moyennage
         avr_button = QPushButton("Average", self)
         avr_button.clicked.connect(self.avr_clicked)
-        avr_button.setGeometry(415, 30, 93, 28)
+        avr_button.setGeometry(405, 30, 93, 28)
 
         # Bouton de sauvegarde  
-        save_button = QPushButton("Average and save", self)
-        save_button.clicked.connect(self.save_clicked)
-        save_button.setGeometry(540, 30, 123, 28)
+        save_button = QPushButton("Save checked", self)
+        save_button.clicked.connect(self.save_clicked2)
+        save_button.setGeometry(520, 30, 113, 28)
 
 
     def add_clicked(self):
@@ -230,35 +230,27 @@ class MainWindow(QMainWindow):
         listWidgetItem1.setCheckState(Qt.Checked)
         Vwidget2.addItem(listWidgetItem1)
     
-    def save_clicked(self):
-        restf = []
-        ilist_saxs = []
-        ilist_sans = []
-        summ = []
+    def save_clicked2(self):    #alternative
+        data_dict = {'0': []}
+        sxdf = pd.DataFrame(data_dict)
+        sndf = pd.DataFrame(data_dict)
         for x in range(Vwidget2.count()):
             if Vwidget2.item(x).checkState()==2:
                 j = Vwidget2.item(x).text()
                 for i in np.arange(0,len(df)):
                     if (df.loc[i]['name']+"  ("+df.loc[i]['number']+")"==j) and (df.loc[i]['type']=="SAXS"):
-                        ilist_saxs.append(df.loc[i]['i'])
+                        if i==0:
+                            sxdf["q_x"] = df.iloc[i]['q']
+                        sxdf["i_x_"+str(df.loc[i]['number'])] = df.iloc[i]['i']
                     if (df.loc[i]['name']+"  ("+df.loc[i]['number']+")"==j) and (df.loc[i]['type']=="SANS"):
-                        ilist_sans.append(df.loc[i]['i'])
+                        if i==0:
+                            sndf["q_n"] = df.iloc[i]['q']
+                        sndf["i_n_"+str(df.loc[i]['number'])] = df.iloc[i]['i']
 
-        dfsaxs = pd.DataFrame(ilist_saxs)
-        dfsans = pd.DataFrame(ilist_sans)
+        sydf = pd.concat([sxdf, sndf], axis=1) 
+        sydf = sydf.dropna(axis=1, how='all')
 
-        adfx = dfsaxs.mean()
-        adfn = dfsans.mean()
-        xarray= adfx.to_numpy(dtype=object)
-        narray = adfn.to_numpy(dtype=object)
-
-        ######### SAVE !!!!!!!!!!!!!!
-        
-        #np.savetxt('S.txt', np.transpose((df.iloc[i]['q'])), fmt='%s')
-
-
-
-
+        sydf.to_csv('data2.txt', sep='\t', index=False)
 
 
 window = MainWindow()
