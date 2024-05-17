@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
 
         # Bouton de sauvegarde  
         save_button = QPushButton("Save checked", self)
-        save_button.clicked.connect(self.save_clicked2)
+        save_button.clicked.connect(self.save_clicked)
         save_button.setGeometry(520, 30, 113, 28)
 
 
@@ -230,7 +230,8 @@ class MainWindow(QMainWindow):
         listWidgetItem1.setCheckState(Qt.Checked)
         Vwidget2.addItem(listWidgetItem1)
     
-    def save_clicked2(self):    #alternative
+
+    def save_clicked(self):
         data_dict = {'0': []}
         sxdf = pd.DataFrame(data_dict)
         sndf = pd.DataFrame(data_dict)
@@ -240,17 +241,17 @@ class MainWindow(QMainWindow):
                 for i in np.arange(0,len(df)):
                     if (df.loc[i]['name']+"  ("+df.loc[i]['number']+")"==j) and (df.loc[i]['type']=="SAXS"):
                         if i==0:
-                            sxdf["q_x"] = df.iloc[i]['q']
+                            sxdf["q_x | "+str(df.loc[i]['name'])] = df.iloc[i]['q']
                         sxdf["i_x_"+str(df.loc[i]['number'])] = df.iloc[i]['i']
                     if (df.loc[i]['name']+"  ("+df.loc[i]['number']+")"==j) and (df.loc[i]['type']=="SANS"):
-                        if i==0:
-                            sndf["q_n"] = df.iloc[i]['q']
+                        if i==1:
+                            sndf["q_n | "+str(df.loc[i]['name'])] = df.iloc[i]['q']
                         sndf["i_n_"+str(df.loc[i]['number'])] = df.iloc[i]['i']
 
         sydf = pd.concat([sxdf, sndf], axis=1) 
         sydf = sydf.dropna(axis=1, how='all')
 
-        sydf.to_csv('data2.txt', sep='\t', index=False)
+        sydf.to_csv('data.txt', sep='\t', index=False)
 
 
 window = MainWindow()
